@@ -6,6 +6,10 @@ A full-featured social media platform built with Next.js, TypeScript, Prisma, an
 
 Check out the live demo at [https://socimed-ew4i-do15xhakz-hakeemolajs-projects.vercel.app](https://socimed-ew4i-do15xhakz-hakeemolajs-projects.vercel.app)
 
+## Deployment Status
+
+This project is automatically deployed to Vercel using GitHub Actions.
+
 ## Features
 
 - User authentication with NextAuth (Google, GitHub, and credentials)
