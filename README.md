@@ -10,6 +10,12 @@ Check out the live demo at [https://socimed-ew4i-do15xhakz-hakeemolajs-projects.
 
 This project is automatically deployed to Vercel using GitHub Actions.
 
+## Documentation
+
+- [Branch Protection Rules](docs/BRANCH_PROTECTION.md)
+- [Project Board Setup](docs/PROJECT_BOARD.md)
+- [Development Workflow](docs/DEVELOPMENT_WORKFLOW.md)
+
 ## Features
 
 - User authentication with NextAuth (Google, GitHub, and credentials)
