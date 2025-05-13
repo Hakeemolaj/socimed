@@ -2,6 +2,10 @@
 
 A full-featured social media platform built with Next.js, TypeScript, Prisma, and NextAuth.
 
+## Live Demo
+
+Check out the live demo at [https://socimed-ew4i-do15xhakz-hakeemolajs-projects.vercel.app](https://socimed-ew4i-do15xhakz-hakeemolajs-projects.vercel.app)
+
 ## Features
 
 - User authentication with NextAuth (Google, GitHub, and credentials)
@@ -32,7 +36,7 @@ A full-featured social media platform built with Next.js, TypeScript, Prisma, an
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/socimed.git
+git clone https://github.com/Hakeemolaj/socimed.git
 cd socimed
 ```
 
