@@ -1,11 +1,11 @@
 import { http, HttpResponse } from 'msw'
 import { mockUsers, mockFriends, mockFriendRequests } from '@/lib/mock-data'
 
-// Add types for the request handlers
-type HttpRequest = {
-  request: Request;
-  params: Record<string, string>;
-}
+// The HttpRequest type was unused as msw infers handler parameters.
+// type HttpRequest = {
+//   request: Request;
+//   params: Record<string, string>;
+// }
 
 export const handlers = [
   // Mock user search API

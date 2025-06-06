@@ -2,13 +2,15 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]/route'
 import { createErrorResponse, createSuccessResponse, withErrorHandling } from '@/lib/api-utils'
 import { z } from 'zod'
+import type { PrismaClient } from '@prisma/client'
 
 // Import prisma conditionally to handle both database and no-database scenarios
-let prisma: any;
+let prisma: PrismaClient | null;
 try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   prisma = require('@/lib/prisma').prisma;
-} catch (error) {
-  console.warn('Prisma not initialized, using mock data');
+} catch (loadError) { // Renamed to avoid conflict
+  console.warn('Prisma not initialized, using mock data:', loadError);
   prisma = null;
 }
 
@@ -157,9 +159,9 @@ export async function POST(request: Request) {
     mockPosts.unshift(newPost);
     
     return createSuccessResponse(newPost, 201);
-  } catch (error) {
-    console.error('Error creating post:', error);
-    return createErrorResponse('Failed to create post', 500, error);
+  } catch (postCreationError) { // Renamed to be more specific
+    console.error('Error creating post:', postCreationError);
+    return createErrorResponse('Failed to create post', 500, postCreationError);
   }
 }
 
@@ -195,8 +197,8 @@ export async function GET() {
         });
         return posts;
       }
-    } catch (error) {
-      console.error('Database error, falling back to mock data:', error);
+    } catch (dbFetchError) { // Renamed to be more specific
+      console.error('Database error, falling back to mock data:', dbFetchError);
       // Continue to return mock data on error
     }
     

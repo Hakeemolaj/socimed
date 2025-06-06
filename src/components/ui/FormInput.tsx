@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react' // Removed { useState }
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid'
 
 interface FormInputProps {
@@ -36,11 +36,11 @@ export default function FormInput({
   helperText,
   autoComplete,
 }: FormInputProps) {
-  const [isFocused, setIsFocused] = useState(false)
+  // const [isFocused, setIsFocused] = useState(false) // Unused state
 
-  const handleFocus = () => setIsFocused(true)
+  // const handleFocus = () => setIsFocused(true) // Unused handler
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    setIsFocused(false)
+    // setIsFocused(false) // State was unused
     if (onBlur) onBlur(e)
   }
 
@@ -68,8 +68,8 @@ export default function FormInput({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          // onFocus={handleFocus} // Handler was unused
+          onBlur={onBlur ? handleBlur : undefined} // Pass onBlur directly or use simplified handleBlur
           required={required}
           disabled={disabled}
           aria-invalid={!!error}

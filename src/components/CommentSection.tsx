@@ -42,29 +42,29 @@ export default function CommentSection({ postId, initialComments = [] }: Comment
   const [isLoadingComments, setIsLoadingComments] = useState(!initialComments.length)
 
   useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        setIsLoadingComments(true)
+        const response = await fetch(`/api/posts/${postId}/comments`)
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch comments')
+        }
+
+        const data = await response.json()
+        setComments(data)
+      } catch (error) {
+        console.error('Error fetching comments:', error)
+        toast.error('Failed to load comments')
+      } finally {
+        setIsLoadingComments(false)
+      }
+    }
+
     if (!initialComments.length) {
       fetchComments()
     }
   }, [postId, initialComments.length])
-
-  const fetchComments = async () => {
-    try {
-      setIsLoadingComments(true)
-      const response = await fetch(`/api/posts/${postId}/comments`)
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch comments')
-      }
-      
-      const data = await response.json()
-      setComments(data)
-    } catch (error) {
-      console.error('Error fetching comments:', error)
-      toast.error('Failed to load comments')
-    } finally {
-      setIsLoadingComments(false)
-    }
-  }
 
   const validateComment = () => {
     try {

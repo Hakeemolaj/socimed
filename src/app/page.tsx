@@ -30,7 +30,7 @@ export default function Home() {
         <div className="w-full max-w-lg text-center">
           <h1 className="mb-6 text-4xl font-bold text-gray-900 dark:text-white">Welcome to Socimed</h1>
           <p className="mb-8 text-xl text-gray-600 dark:text-gray-400">
-            Connect with friends, share moments, and discover what's happening around you
+            Connect with friends, share moments, and discover what&apos;s happening around you
           </p>
           <Link
             href="/auth/signin"

@@ -3,8 +3,8 @@ import {
   getSafeUserFromSession, 
   isAuthenticated, 
   isCurrentUser, 
-  getCurrentUserId,
-  SafeUser
+  getCurrentUserId
+  // SafeUser // Unused import
 } from '@/lib/session-helpers'
 
 export function useAuth() {

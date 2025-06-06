@@ -48,23 +48,23 @@ export default function Post({ post, onLike }: PostProps) {
 
   // Pre-fetch comments when post is visible to reduce perceived loading time
   useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await fetch(`/api/posts/${post.id}/comments`)
+        if (response.ok) {
+          const data = await response.json()
+          setComments(data)
+          setLoadedComments(true)
+        }
+      } catch (error) {
+        console.error('Error pre-fetching comments:', error)
+      }
+    }
+
     if (post._count.comments > 0 && !loadedComments) {
       fetchComments()
     }
   }, [post.id, post._count.comments, loadedComments])
-
-  const fetchComments = async () => {
-    try {
-      const response = await fetch(`/api/posts/${post.id}/comments`)
-      if (response.ok) {
-        const data = await response.json()
-        setComments(data)
-        setLoadedComments(true)
-      }
-    } catch (error) {
-      console.error('Error pre-fetching comments:', error)
-    }
-  }
 
   const handleLike = async () => {
     if (isLiking || !isAuthenticated(session)) return

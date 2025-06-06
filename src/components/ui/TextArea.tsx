@@ -36,13 +36,13 @@ export default function TextArea({
   rows = 3,
   maxLength,
 }: TextAreaProps) {
-  const [isFocused, setIsFocused] = useState(false)
+  // const [isFocused, setIsFocused] = useState(false) // Unused state
   const [charCount, setCharCount] = useState(value.length)
 
-  const handleFocus = () => setIsFocused(true)
+  // const handleFocus = () => setIsFocused(true) // Unused handler
   
   const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    setIsFocused(false)
+    // setIsFocused(false) // State was unused
     if (onBlur) onBlur(e)
   }
 
@@ -74,8 +74,8 @@ export default function TextArea({
           placeholder={placeholder}
           value={value}
           onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          // onFocus={handleFocus} // Handler was unused
+          onBlur={onBlur ? handleBlur : undefined} // Pass onBlur directly or use simplified handleBlur
           required={required}
           disabled={disabled}
           rows={rows}
