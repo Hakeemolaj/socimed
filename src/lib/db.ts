@@ -1,35 +1,5 @@
 import { prisma } from './prisma';
 
-// Type-safe database operations
-export const db = {
-  user: {
-    ...prisma.user
-  },
-  
-  account: {
-    ...prisma.account
-  },
-  
-  session: {
-    ...prisma.session
-  },
-  
-  post: {
-    ...prisma.post
-  },
-  
-  comment: {
-    ...prisma.comment
-  },
-  
-  like: {
-    ...prisma.like
-  },
-  
-  follow: {
-    ...prisma.follow
-  },
-
 // Define a basic WhereInput type for raw queries
 // This is a simplified version and doesn't cover all Prisma WhereInput features
 type BasicWhereInput = {
