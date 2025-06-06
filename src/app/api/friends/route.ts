@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../auth/[...nextauth]/route'
+import type { PrismaClient } from '@prisma/client'
 
 // Import prisma conditionally
-let prisma: any;
+let prisma: PrismaClient | null;
 try {
+  // Dynamically require prisma only if it's expected to be available
+  // Adjust the path as necessary if your prisma instance is exported differently
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   prisma = require('@/lib/prisma').prisma;
-} catch (error) {
-  console.warn('Prisma not initialized, using mock data');
+} catch (loadError) { // Changed 'error' to 'loadError' to avoid conflict with other 'error' variables
+  console.warn('Prisma not initialized, using mock data:', loadError);
   prisma = null;
 }
 
@@ -52,9 +56,19 @@ export async function GET() {
           WHERE f."userId" = ${currentUserId}
         `;
 
+        // Define a type for the raw query result
+        type FriendQueryResult = {
+          id: string;
+          userId: string;
+          name: string | null;
+          image: string | null;
+          username: string | null;
+        };
+
+        const rawFriends = friends as FriendQueryResult[];
+
         // Transform the data for client use
-        // @ts-ignore - handling raw query results
-        const formattedFriends = Array.isArray(friends) ? friends.map(friendship => ({
+        const formattedFriends = Array.isArray(rawFriends) ? rawFriends.map(friendship => ({
           id: friendship.id,
           userId: friendship.userId,
           name: friendship.name || 'Unknown',
@@ -63,16 +77,16 @@ export async function GET() {
         })) : [];
 
         return NextResponse.json(formattedFriends)
-      } catch (error) {
-        console.error('Database error fetching friends, falling back to mock data:', error)
+      } catch (dbError) { // Changed 'error' to 'dbError'
+        console.error('Database error fetching friends, falling back to mock data:', dbError)
         // Fall back to mock data
       }
     }
 
     // Return mock friends if prisma is not available or there was a database error
     return NextResponse.json(mockFriends)
-  } catch (error) {
-    console.error('Error fetching friends:', error)
+  } catch (routeError) { // Changed 'error' to 'routeError'
+    console.error('Error fetching friends:', routeError)
     return NextResponse.json({ error: 'Failed to fetch friends' }, { status: 500 })
   }
 } 

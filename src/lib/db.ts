@@ -1,52 +1,85 @@
 import { prisma } from './prisma';
 
-// Type-safe database operations
+// Define a basic WhereInput type for raw queries
+// This is a simplified version and doesn't cover all Prisma WhereInput features
+type BasicWhereInput = {
+  [key: string]: string | number | boolean | { in?: (string | number)[]; not?: string | number; contains?: string; startsWith?: string };
+  OR?: BasicWhereInput[];
+  AND?: BasicWhereInput[];
+};
+
+type FindManyArgs = { where?: BasicWhereInput };
+type FindFirstArgs = { where?: BasicWhereInput }; // Could also include orderBy, etc.
+
+// Argument types for FriendRequest operations
+interface FriendRequestCreateArgsData {
+  senderId: string;
+  receiverId: string;
+  status?: string;
+}
+interface FriendRequestCreateArgs { data: FriendRequestCreateArgsData }
+
+interface FriendRequestUpdateArgsData {
+  status: string;
+}
+interface FriendRequestUpdateArgsWhere {
+  id: string;
+}
+interface FriendRequestUpdateArgs { data: FriendRequestUpdateArgsData; where: FriendRequestUpdateArgsWhere }
+
+// Argument types for Friend operations
+interface FriendCreateArgsData {
+  userId: string;
+  friendId: string;
+}
+interface FriendCreateArgs { data: FriendCreateArgsData }
+
+// Actual db object
 export const db = {
   user: {
     ...prisma.user
   },
-  
+
   account: {
     ...prisma.account
   },
-  
+
   session: {
     ...prisma.session
   },
-  
+
   post: {
     ...prisma.post
   },
-  
+
   comment: {
     ...prisma.comment
   },
-  
+
   like: {
     ...prisma.like
   },
-  
+
   follow: {
     ...prisma.follow
   },
 
-  // Friend request operations
   friendRequest: {
-    findMany: (args: any) => prisma.$queryRaw`
+    findMany: (args: FindManyArgs) => prisma.$queryRaw`
       SELECT * FROM "FriendRequest"
       ${args.where ? `WHERE ${buildWhereClause(args.where)}` : ''}
     `,
-    findFirst: (args: any) => prisma.$queryRaw`
+    findFirst: (args: FindFirstArgs) => prisma.$queryRaw`
       SELECT * FROM "FriendRequest"
       ${args.where ? `WHERE ${buildWhereClause(args.where)}` : ''}
       LIMIT 1
     `,
-    create: (args: any) => prisma.$queryRaw`
+    create: (args: FriendRequestCreateArgs) => prisma.$queryRaw`
       INSERT INTO "FriendRequest" ("senderId", "receiverId", "status")
       VALUES (${args.data.senderId}, ${args.data.receiverId}, ${args.data.status || 'pending'})
       RETURNING *
     `,
-    update: (args: any) => prisma.$queryRaw`
+    update: (args: FriendRequestUpdateArgs) => prisma.$queryRaw`
       UPDATE "FriendRequest"
       SET "status" = ${args.data.status}
       WHERE "id" = ${args.where.id}
@@ -54,18 +87,17 @@ export const db = {
     `
   },
   
-  // Friend operations
   friend: {
-    findMany: (args: any) => prisma.$queryRaw`
+    findMany: (args: FindManyArgs) => prisma.$queryRaw`
       SELECT * FROM "Friend"
       ${args.where ? `WHERE ${buildWhereClause(args.where)}` : ''}
     `,
-    findFirst: (args: any) => prisma.$queryRaw`
+    findFirst: (args: FindFirstArgs) => prisma.$queryRaw`
       SELECT * FROM "Friend"
       ${args.where ? `WHERE ${buildWhereClause(args.where)}` : ''}
       LIMIT 1
     `,
-    create: (args: any) => prisma.$queryRaw`
+    create: (args: FriendCreateArgs) => prisma.$queryRaw`
       INSERT INTO "Friend" ("userId", "friendId")
       VALUES (${args.data.userId}, ${args.data.friendId})
       RETURNING *
@@ -77,31 +109,35 @@ export const db = {
 };
 
 // Helper function to build WHERE clauses
-function buildWhereClause(where: any): string {
+function buildWhereClause(where: BasicWhereInput): string {
   if (where.OR) {
-    return where.OR.map((condition: any) => buildWhereClause(condition)).join(' OR ');
+    return where.OR.map(condition => buildWhereClause(condition)).join(' OR ');
   }
   
   const conditions = [];
   for (const [key, value] of Object.entries(where)) {
-    if (key === 'OR' || key === 'AND') continue;
+    if (key === 'OR' || key === 'AND') continue; // Handled by recursive calls or direct structure
     
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       // Handle operators like 'in', 'not', etc.
-      for (const [op, opValue] of Object.entries(value)) {
+      // Ensure value is treated as a record for Object.entries
+      const operatorRecord = value as Record<string, string | number | (string | number)[]>;
+      for (const [op, opValue] of Object.entries(operatorRecord)) {
         if (op === 'in' && Array.isArray(opValue)) {
-          conditions.push(`"${key}" IN (${opValue.map(v => `'${v}'`).join(', ')})`);
+          conditions.push(`"${key}" IN (${opValue.map(v => typeof v === 'string' ? `'${v}'` : v).join(', ')})`);
         } else if (op === 'not') {
-          conditions.push(`"${key}" != '${opValue}'`);
-        } else if (op === 'contains') {
+          conditions.push(`"${key}" != ${typeof opValue === 'string' ? `'${opValue}'` : opValue}`);
+        } else if (op === 'contains' && typeof opValue === 'string') {
           conditions.push(`"${key}" LIKE '%${opValue}%'`);
-        } else if (op === 'startsWith') {
+        } else if (op === 'startsWith' && typeof opValue === 'string') {
           conditions.push(`"${key}" LIKE '${opValue}%'`);
         }
+        // Add other operators as needed
       }
-    } else {
-      // Simple equality
+    } else if (typeof value === 'string') {
       conditions.push(`"${key}" = '${value}'`);
+    } else if (typeof value === 'number' || typeof value === 'boolean') {
+      conditions.push(`"${key}" = ${value}`);
     }
   }
   

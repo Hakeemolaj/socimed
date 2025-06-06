@@ -27,7 +27,7 @@ export async function GET() {
       });
 
       // Format the response for client use
-      // @ts-ignore - handling raw query results
+      // @ts-expect-error - handling raw query results
       const formattedRequests = Array.isArray(requests) ? requests.map(request => ({
         id: request.id,
         userId: request.userId,

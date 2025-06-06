@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update the request status to rejected
-    const updatedRequest = await db.friendRequest.update({
+    await db.friendRequest.update({
       where: { id: requestId },
       data: { status: 'rejected' }
     })

@@ -148,7 +148,7 @@ export default function UserProfilePage() {
         <div className="container mx-auto px-4 py-12">
           <div className="rounded-lg bg-slate-800/80 p-8 text-center shadow-lg backdrop-blur-lg ring-1 ring-white/10">
             <h1 className="text-2xl font-bold text-white">User not found</h1>
-            <p className="mt-2 text-gray-400">The user you're looking for doesn't exist or has been removed.</p>
+            <p className="mt-2 text-gray-400">The user you&apos;re looking for doesn&apos;t exist or has been removed.</p>
             <button 
               onClick={() => router.push('/')}
               className="mt-4 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"

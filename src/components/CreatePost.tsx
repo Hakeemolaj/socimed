@@ -8,8 +8,25 @@ import { Button } from './ui/Button'
 import TextArea from './ui/TextArea'
 import { z } from 'zod'
 
+// Define a more specific type for the post object
+interface PostData {
+  id: string;
+  content: string;
+  createdAt: string; // Or Date
+  user: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  };
+  _count: {
+    likes: number;
+    comments: number;
+  };
+  likes: Array<{ userId: string }>;
+}
+
 interface CreatePostProps {
-  onPostCreated: (post: any) => void
+  onPostCreated: (post: PostData) => void
 }
 
 // Validation schema for post content

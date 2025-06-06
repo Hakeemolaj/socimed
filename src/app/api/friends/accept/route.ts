@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the sender ID from the friend request
-    // @ts-ignore - handle the unknown type from raw query
+    // @ts-expect-error - handle the unknown type from raw query
     const senderId = friendRequest.senderId || friendRequest[0]?.senderId
 
     if (!senderId) {
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       success: true,
       data: {
         requestId,
-        // @ts-ignore - handle the unknown type from raw query
+        // @ts-expect-error - handle the unknown type from raw query
         friendshipId: friendship.id || friendship[0]?.id
       }
     })

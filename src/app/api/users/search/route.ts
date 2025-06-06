@@ -36,18 +36,38 @@ export async function GET(request: NextRequest) {
       )
     `;
 
-    // Get arrays of user IDs for later queries
-    // @ts-ignore - handling raw query results
-    const userIds = Array.isArray(users) ? users.map((u: any) => u.id) : [];
+    // Define types for raw query results
+    type UserSearchResult = {
+      id: string;
+      name: string | null;
+      image: string | null;
+      username: string | null;
+      email: string | null;
+    };
+
+    type FriendshipResult = {
+      userId: string;
+      friendId: string;
+    };
+
+    type FriendRequestResult = {
+      id: string;
+      senderId: string;
+      receiverId: string;
+      status: string;
+    };
+
+    const rawUsers = users as UserSearchResult[];
+    const userIds = Array.isArray(rawUsers) ? rawUsers.map(u => u.id) : [];
     
-    let friendships: any[] = [];
-    let friendRequests: any[] = [];
+    let friendships: FriendshipResult[] = [];
+    let friendRequests: FriendRequestResult[] = [];
 
     // Only run these queries if we found users
     if (userIds.length > 0) {
       // Find friendships using raw SQL query
       const userIdsParam = Prisma.join(userIds.map(id => Prisma.sql`${id}`));
-      friendships = await prisma.$queryRaw`
+      const rawFriendships = await prisma.$queryRaw`
         SELECT "userId", "friendId"
         FROM "Friend"
         WHERE 
@@ -55,9 +75,10 @@ export async function GET(request: NextRequest) {
           OR
           ("friendId" = ${currentUserId} AND "userId" IN (${userIdsParam}))
       `;
+      friendships = rawFriendships as FriendshipResult[];
 
       // Find friend requests using raw SQL query 
-      friendRequests = await prisma.$queryRaw`
+      const rawFriendRequests = await prisma.$queryRaw`
         SELECT id, "senderId", "receiverId", status
         FROM "FriendRequest"
         WHERE 
@@ -65,20 +86,20 @@ export async function GET(request: NextRequest) {
           OR
           ("receiverId" = ${currentUserId} AND "senderId" IN (${userIdsParam}))
       `;
+      friendRequests = rawFriendRequests as FriendRequestResult[];
     }
 
     // Add relationship status to each user
-    // @ts-ignore - handling raw query results
-    const resultsWithStatus = Array.isArray(users) ? users.map(user => {
+    const resultsWithStatus = Array.isArray(rawUsers) ? rawUsers.map(user => {
       // Check if they're friends
-      const isFriend = Array.isArray(friendships) && friendships.some(
-        (f: any) => (f.userId === currentUserId && f.friendId === user.id) || 
+      const isFriend = friendships.some(
+        f => (f.userId === currentUserId && f.friendId === user.id) ||
              (f.userId === user.id && f.friendId === currentUserId)
       );
       
       // Check for friend requests
-      const pendingRequest = Array.isArray(friendRequests) && friendRequests.find(
-        (r: any) => (r.senderId === currentUserId && r.receiverId === user.id) || 
+      const pendingRequest = friendRequests.find(
+        r => (r.senderId === currentUserId && r.receiverId === user.id) ||
              (r.senderId === user.id && r.receiverId === currentUserId)
       );
       
@@ -90,7 +111,7 @@ export async function GET(request: NextRequest) {
         if (pendingRequest.status === 'pending') {
           status = pendingRequest.senderId === currentUserId ? 'sent' : 'received';
         } else {
-          status = pendingRequest.status;
+          status = pendingRequest.status; // Use the actual status from the request
         }
       }
       
@@ -101,8 +122,8 @@ export async function GET(request: NextRequest) {
     }) : [];
 
     return NextResponse.json(resultsWithStatus)
-  } catch (error) {
-    console.error('Error searching users:', error)
+  } catch (searchError) { // Renamed error variable
+    console.error('Error searching users:', searchError)
     return NextResponse.json({ error: 'Failed to search users' }, { status: 500 })
   }
 } 

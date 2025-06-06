@@ -36,9 +36,6 @@ const validateEnv = () => {
 // Validate environment variables early
 validateEnv();
 
-// Get the cookie domain from environment
-const cookieDomain = process.env.NEXTAUTH_COOKIE_DOMAIN || undefined;
-
 // Configure auth options
 export const authOptions: NextAuthOptions = {
   // Remove the PrismaAdapter since we're using JWT
@@ -137,7 +134,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     // Handle the sign-in flow and account linking
-    signIn: async ({ user, account, profile }) => {
+    signIn: async ({ user, account }) => { // Removed 'profile'
       // Skip this logic if we're in development mode or if prisma is undefined
       if (isDevelopment || !prisma) {
         return true;

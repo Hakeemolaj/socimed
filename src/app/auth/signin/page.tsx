@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
-import Image from 'next/image'
+// Removed unused Image import
 
 export default function SignIn() {
   const router = useRouter()
